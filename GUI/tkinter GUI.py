@@ -12,6 +12,10 @@ GUI.title(title)
 
 FONT1 = ('Ansana New', 25)
 FONT2 = ('Ansana New', 18)
+TITLE = ("Times New Roman",28,'italic')
+HD1 = ("Times New Roman",20)
+HD2 = ("Times New Roman",16,)
+NORMAL = ("TImes New Roman", 16)
 
 ########## Notebook(TAB) ##########
 Tab = ttk.Notebook(GUI)
@@ -29,7 +33,45 @@ Tab.add(T2,text=T2_title)
 Tab.add(T3,text=T3_title)
 
 ########## T1 (Satellite Calculation) ##########
+########## VARIABLE ##########
+v_catalog = StringVar()
+v_location_arcmin = StringVar()
+v_location_arcsec = StringVar()
+v_location_miliarcsec = StringVar()
+v_dd =StringVar()
+v_mm = StringVar()
+v_yyyy = StringVar()
 
+
+Title1 = Label(T1, text = 'Satellite Data', font=TITLE).grid(row=0,column=0)
+blank1 = Label(T1).grid(row=1,column=0)
+HD1 = Label(T1, text = 'Catalog number : ',font = HD2).grid(row=2,column=0,sticky = 'E')
+E1_1 = Entry(T1, textvariable = v_catalog, width = 50).grid(row=2,column=1)
+B1_1 = Button(T1, text = 'search').grid(row=2, column = 2, sticky ='E')
+
+L1_1 = Label(T1, text = 'Name :', font = NORMAL).grid(row=3,column = 0,sticky = 'E')
+L1_2 = Label(T1, text = 'Designator :', font = NORMAL).grid(row=4,column = 0,sticky = 'E')
+blank2 = Label(T1).grid(row=5,column=0)
+
+Title2 = Label(T1, text = 'Observer Data', font=TITLE).grid(row=6,column=0)
+
+L1_3 = Label(T1, text = 'Location :', font = NORMAL).grid(row=7,column = 0,sticky = 'E')
+E1_2 = Entry(T1, textvariable = v_location_arcmin, width = 5).place(x=250,y=235)
+L1_4 = Label(T1, text = chr(176),font=NORMAL).place(x=280,y=230)
+E1_3 = Entry(T1, textvariable = v_location_arcsec, width = 5).place(x=300,y=235)
+L1_5 = Label(T1, text = '\'',font=NORMAL).place(x=330,y=230)
+E1_4 = Entry(T1, textvariable = v_location_miliarcsec, width = 5).place(x=350,y=235)
+L1_6 = Label(T1, text = '\'\'',font=NORMAL).place(x=380,y=230)
+
+L1_7 = Label(T1, text = 'Date :', font = NORMAL).grid(row=8,column = 0,sticky = 'E')
+E1_5 = Entry(T1, textvariable = v_dd, width = 5).place(x=250,y=265)
+L1_8 = Label(T1, text = '--',font=NORMAL).place(x=280,y=260)
+E1_6 = Entry(T1, textvariable = v_mm, width = 5).place(x=300,y=265)
+L1_9 = Label(T1, text = '--',font=NORMAL).place(x=330,y=260)
+E1_7= Entry(T1, textvariable = v_yyyy, width = 10).place(x=350,y=265)
+blank3 = Label(T1).grid(row=9,column=0)
+
+B1_2 = Button(T1, text = 'Calculate', font = NORMAL).grid(row=11,column=2,sticky='E')
 ########## T2 (Satellite Data) ##########
 header = ['CATALOG NUMBER', 'INTERNATIONAL DESIGNATOR', 'SATELLITE NAME']
 hdsize = [200,200,200]

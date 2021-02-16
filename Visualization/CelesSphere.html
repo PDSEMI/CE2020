@@ -1,0 +1,46 @@
+<canvas id = "canvas" width = "700" height="700"></canvas>
+<div id = "uiContainer">
+  <div id = "ui">
+    <div id="cameraAngle"></div>
+  </div>
+</div>
+
+
+<!--vertex shader-->
+<script id = "vertex-shader-3d" type="x-shader/x-vertex">
+attribute vec4 a_position;
+attribute vec4 a_color;
+
+uniform mat4 u_matrix;
+
+varying vec4 v_color;
+
+void main() {
+  gl_Position = u_matrix * a_position;
+
+  v_color = a_color;
+}
+</script>
+
+<!--fragment shader-->
+<script id = "fragment-shader-3d" type="x-shader/x-fragment">
+precision mediump float;
+
+varying vec4 v_color;
+
+uniform mat4 u_colorMulti;
+
+void main() {
+  gl_FragColor = v_color;
+}
+</script>
+
+<script src = "jquery-1.7.1.min.js"></script>
+<script src = "jquery-gman-circle.js"></script>
+<script src = "jquery-ui-1.8.16.custom.min.js"></script>
+<script src = "jquery.gman.ui.js"></script>
+<script src = "jquery.mousecapture.js"></script>
+<script src= "webgl-utils.js"></script>
+<script src= "webgl-lessons-ui.js"></script>
+<script src = "gl-matrix.js"></script>
+<script src = "Visualization.js"></script>
