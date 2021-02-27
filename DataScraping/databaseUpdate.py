@@ -1,46 +1,17 @@
-import sqlite3
-
-#Initialize database
-
-sql_create_3LE_table = """CREATE TABLE IF NOT EXISTS Data (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Name text,
-        CatalogNumber text,
-        ElsetClassification text,
-        InternationalDesignator text,
-        Epoch text,
-        Inclination text,
-        RAAscending text,
-        Eccentricity text,
-        ArgOfPerigee text,
-        MeanAnomaly text,
-        MeanMotion text);
-        """
+import openpyxl
 
 
-def create_connection(db_file):
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except Exception as e:
-        print(e)
-    return conn
+######### EXCEL #########
+#workbook = xlsxwriter.Workbook("SatelliteData.xls")
+workbook = openpyxl.load_workbook("SatelliteData.xlsx")
+worksheet = workbook.active
 
-def create_table(conn, create_table_sql):
-    try:
-        c = conn.cursor()
-        c.execute(create_table_sql)
-    except Exception as e:
-        print(e)
+Header = ['ID', 'NAME', 'CATALOG', 'ELSET CLASSIFICATION', 'INTERNATIONAL DESIGNATOR', 'EPOCH', 'INCLINATION', 'RA OF ASC_NODE','ECCENTRICITY', 'ARG OF PERIGEE', 'MEAN ANOMALY', 'MOTION']
+i = 1
+for column_name in Header:
+    worksheet.cell(row = 1, column = i).value = column_name
+    i = i+1
 
-database = r"E:\FORUM\Project\CE2020\Test"
-
-conn = create_connection(database)
-if conn is not None:
-    create_table(conn, sql_create_3LE_table)
-else:
-    print("Error! cannot create database connection")
 
 ######### END OF DATABASE INITIALIZE #########
 class Satellite:
@@ -57,65 +28,42 @@ class Satellite:
         self.Anomaly = None
         self.Motion = None
 
-
-def insert_data(conn, data):
-    sql_insert_satellite_data = """
-    INSERT INTO Data( 
-        Name, 
-        CatalogNumber,
-        ElsetClassification,
-        InternationalDesignator,
-        Epoch,
-        Inclination,
-        RAAscending,
-        Eccentricity,
-        ArgOfPerigee,
-        MeanAnomaly,
-        MeanMotion)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?);
-    """
-    sql_insert_satellite_name = """
-    INSERT INTO Data( 
-        Name)
-        VALUES(?);
-    """
-    c = conn.cursor()
-    c.execute(sql_insert_satellite_data, data)
-    conn.commit()
-
 def to_sat_data(sat):
-    sat_data =   '\''+ sat.Name + '\',\'' + sat.CatNum + '\',\'' + sat.Class + '\',\'' + sat.Desig + '\',\'' + sat.Epoch + '\',\'' + sat.Incl + '\',\'' + sat.RA + '\',\'' + sat.E + '\',\'' + sat.Perigee + '\',\'' + sat.Anomaly + '\',\'' + sat.Motion  +'\''
+    sat_data =  [sat.Name,sat.CatNum,sat.Class,sat.Desig,sat.Epoch,sat.Incl,sat.RA,sat.E,sat.Perigee,sat.Anomaly,sat.Motion]
     return sat_data
    
 ######### INSERT DATA ##########
-data_file = r"E:\FORUM\Project\CE2020\Scrap\3LE.txt"
+
+data_file = r"E:\FORUM\Project\CE2020\DataScraping\3LE.txt"
 data = open(data_file,"r")
 i = 0
 sat = Satellite()
+row = 2
 for line in data:
+    column = 1
     i = i+1
     if i%3 == 1:
-        name = line[1:24]
+        name = line[1:24].strip()
         sat.Name = name
     elif i%3 == 2:
-        sat.CatNum = line[2:7]
-        sat.Class = line[7]
-        sat.Desig = line[9:17]
-        sat.Epoch = line[17:32]
+        sat.CatNum = line[2:7].strip()
+        sat.Class = line[7].strip()
+        sat.Desig = line[9:17].strip()
+        sat.Epoch = line[17:32].strip()
     elif i%3 == 0:
-        sat.Incl = line[8:17]
-        sat.RA = line[17:25]
-        sat.E = line[26:33]
-        sat.Perigee = line[34:42]
-        sat.Anomaly = line[43:51]
-        sat.Motion = line[52:63]
+        sat.Incl = line[8:17].strip()
+        sat.RA = line[17:25].strip()
+        sat.E = line[26:33].strip()
+        sat.Perigee = line[34:42].strip()
+        sat.Anomaly = line[43:51].strip()
+        sat.Motion = line[52:63].strip()
         sat_data = to_sat_data(sat)
-        print(sat_data)
-        #insert_data(conn, (sat.Name, sat.CatNum, sat.Class, sat.Desig, sat.Epoch, sat.Incl, sat.RA, sat.E, sat.Perigee, sat.Anomaly, sat.Motion ))
-        break
+        worksheet.cell(row = row, column = 1).value = row - 1
+        for data in sat_data:
+            worksheet.cell(row = row, column = column+1).value = data
+            column = column + 1 
+        row = row +1
 
-#insert_data(conn, )
+workbook.save("SatelliteData.xlsx")
+print("END SECTION")
 
-
-conn.close()
-data.close()

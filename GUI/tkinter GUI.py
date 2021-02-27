@@ -1,10 +1,11 @@
 from tkinter import *
 from tkinter import ttk, messagebox
 import json
-
+import search
+import calculation as cal
 ########## MAIN GUI ##########
-H = "500"
-W = "700"
+H = "800"
+W = "800"
 title = "Celestial Equation 2020"
 GUI = Tk()
 GUI.geometry("{}x{}".format(W,H))
@@ -33,35 +34,149 @@ Tab.add(T2,text=T2_title)
 Tab.add(T3,text=T3_title)
 
 ########## T1 (Satellite Calculation) ##########
+########## CONSTANT ##########
+
+
+
 ########## VARIABLE ##########
 v_catalog = StringVar()
-v_location_arcmin = StringVar()
-v_location_arcsec = StringVar()
-v_location_miliarcsec = StringVar()
+v_sat_name = StringVar()
+v_sat_designator = StringVar()
+v_latitude_arcmin = StringVar()
+v_latitude_arcsec = StringVar()
+v_latitude_miliarcsec = StringVar()
+v_longitude_arcmin = StringVar()
+v_longitude_arcsec = StringVar()
+v_longitude_miliarcsec = StringVar()
 v_dd =StringVar()
 v_mm = StringVar()
 v_yyyy = StringVar()
+v_hr = StringVar()
+v_min = StringVar()
+v_sec = StringVar()
+v_UTC_hr = StringVar()
+v_UTC_min = StringVar()
+v_UTC_sec = StringVar()
+v_RA = StringVar()
+v_dec = StringVar()
+v_timezone = StringVar()
+########## FUNCTION #########
+def SearchSat():
+    path = 'E:\FORUM\Project\CE2020\SatelliteData.xlsx'
+    ID = v_catalog.get()
+    result = search.satSearch(ID, path)
+    v_sat_name.set(result.get('Name'))
+    v_sat_designator.set(result.get('Designator'))
+    Epoch = result.get('Epoch')
+    Incl = result.get('Inclination')
+    RAAN = result.get('RAAN')
+    Eccentricity = result.get('Eccentricity')
+    Perigee = result.get('Perigee')
+    Anomaly = result.get('Anomaly')
+    Motion = result.get('Motion')
+    global Kepler_element 
+    Kepler_element = [Epoch, Incl, RAAN, Eccentricity, Perigee, Anomaly, Motion]
+    
+def SetEpoch():
+    yyyy = int(v_yyyy.get())
+    mm = int(v_mm.get())
+    dd = int(v_dd.get())
+    hr = int(v_UTC_hr.get())
+    minute = int(v_UTC_min.get())
+    sec = int(v_UTC_sec.get())
+    time = cal.fracTime(hr, minute, sec)
+    Epoch = cal.toEpoch(yyyy, mm, dd, time)
+    return Epoch
+
+def calTimeZone():
+    longtitude = v_longitude_arcmin.get()
+    zone = cal.timeZone(longtitude)
+    v_timezone.set(zone)
+    return zone
+
+def setUTC():
+    hr = int(v_hr.get())
+    v_UTC_min.set(v_min.get())
+    v_UTC_sec.set(v_sec.get())
+    zone = int(v_timezone.get())
+    UTC_hr = hr -zone
+    v_UTC_hr.set(str(UTC_hr))
+    
+
+def CalSat():
+    calTimeZone()
+    setUTC()
+
+    next_Epoch = SetEpoch()
+    last_Epoch = float(Kepler_element[0])
+    Motion = float(Kepler_element[6])
+    Anomaly = float(Kepler_element[5])
+    RAAN = float(Kepler_element[2])
+    Perigee = float(Kepler_element[4])
+    i = float(Kepler_element[1])
+    e = float(Kepler_element[3])
+    M = cal.calMean(last_Epoch, next_Epoch, Motion, Anomaly)
+    E = cal.solveE(M,e)
+    v = cal.calTrue(E,e)
+    alpha = v + Perigee
+    position = cal.toRA(i,alpha,RAAN)
+    Dec = position[0]
+    RA = position[1]
+    v_RA.set(RA)
+    v_dec.set(Dec)
+    print('FROM USER INTERFACE')
+    print('i : ', i)
+    print('alpha : ', alpha)
+    print('RAAN : ', RAAN)
+    print('perigee :', Perigee)
+    print('e :', e)
+    print('=========================')
+    print('M : ', M)
+    print('E : ', E)
+    print('v : ', v)
+    print('RA : ', RA)
+    print('Dec : ', Dec)
+    
+
+    
+    
+
 
 
 Title1 = Label(T1, text = 'Satellite Data', font=TITLE).grid(row=0,column=0)
 blank1 = Label(T1).grid(row=1,column=0)
 HD1 = Label(T1, text = 'Catalog number : ',font = HD2).grid(row=2,column=0,sticky = 'E')
-E1_1 = Entry(T1, textvariable = v_catalog, width = 50).grid(row=2,column=1)
-B1_1 = Button(T1, text = 'search').grid(row=2, column = 2, sticky ='E')
+E1_1 = Entry(T1, textvariable = v_catalog, width = 30)
+E1_1.grid(row=2,column=1)
+E1_1.bind('<Return>', SearchSat)
+B1_1 = Button(T1, text = 'search', command = SearchSat).grid(row=2, column = 2, sticky ='E')
 
-L1_1 = Label(T1, text = 'Name :', font = NORMAL).grid(row=3,column = 0,sticky = 'E')
-L1_2 = Label(T1, text = 'Designator :', font = NORMAL).grid(row=4,column = 0,sticky = 'E')
+
+L1_1_1 = Label(T1, text = 'Name :', font = NORMAL).grid(row=3,column = 0,sticky = 'E')
+L1_1_2 = Label(T1, textvariable = v_sat_name, font =NORMAL).grid(row = 3, column = 1, sticky = 'W')
+L1_2_1 = Label(T1, text = 'Designator :', font = NORMAL).grid(row=4,column = 0,sticky = 'E')
+L1_2_2 = Label(T1, textvariable = v_sat_designator, font =NORMAL).grid(row = 4, column = 1, sticky = 'W')
 blank2 = Label(T1).grid(row=5,column=0)
 
 Title2 = Label(T1, text = 'Observer Data', font=TITLE).grid(row=6,column=0)
 
-L1_3 = Label(T1, text = 'Location :', font = NORMAL).grid(row=7,column = 0,sticky = 'E')
-E1_2 = Entry(T1, textvariable = v_location_arcmin, width = 5).place(x=250,y=235)
+L1_3 = Label(T1, text = 'Latitude :', font = NORMAL).grid(row=7,column = 0,sticky = 'E')
+E1_2 = Entry(T1, textvariable = v_latitude_arcmin, width = 5).place(x=250,y=235)
 L1_4 = Label(T1, text = chr(176),font=NORMAL).place(x=280,y=230)
-E1_3 = Entry(T1, textvariable = v_location_arcsec, width = 5).place(x=300,y=235)
+E1_3 = Entry(T1, textvariable = v_latitude_arcsec, width = 5).place(x=300,y=235)
 L1_5 = Label(T1, text = '\'',font=NORMAL).place(x=330,y=230)
-E1_4 = Entry(T1, textvariable = v_location_miliarcsec, width = 5).place(x=350,y=235)
+E1_4 = Entry(T1, textvariable = v_latitude_miliarcsec, width = 5).place(x=350,y=235)
 L1_6 = Label(T1, text = '\'\'',font=NORMAL).place(x=380,y=230)
+
+L1_3 = Label(T1, text = 'Longitude :', font = NORMAL).grid(row=7,column = 2,sticky = 'E')
+E1_2 = Entry(T1, textvariable = v_longitude_arcmin, width = 5).place(x=520,y=235)
+L1_4 = Label(T1, text = chr(176),font=NORMAL).place(x=550,y=230)
+E1_3 = Entry(T1, textvariable = v_longitude_arcsec, width = 5).place(x=570,y=235)
+L1_5 = Label(T1, text = '\'',font=NORMAL).place(x=600,y=230)
+E1_4 = Entry(T1, textvariable = v_longitude_miliarcsec, width = 5).place(x=620,y=235)
+L1_6 = Label(T1, text = '\'\'',font=NORMAL).place(x=650,y=230)
+
+
 
 L1_7 = Label(T1, text = 'Date :', font = NORMAL).grid(row=8,column = 0,sticky = 'E')
 E1_5 = Entry(T1, textvariable = v_dd, width = 5).place(x=250,y=265)
@@ -69,9 +184,32 @@ L1_8 = Label(T1, text = '--',font=NORMAL).place(x=280,y=260)
 E1_6 = Entry(T1, textvariable = v_mm, width = 5).place(x=300,y=265)
 L1_9 = Label(T1, text = '--',font=NORMAL).place(x=330,y=260)
 E1_7= Entry(T1, textvariable = v_yyyy, width = 10).place(x=350,y=265)
-blank3 = Label(T1).grid(row=9,column=0)
 
-B1_2 = Button(T1, text = 'Calculate', font = NORMAL).grid(row=11,column=2,sticky='E')
+L1_10 = Label(T1, text = 'Time :', font = NORMAL).grid(row=9,column = 0,sticky = 'E')
+E1_8 = Entry(T1, textvariable = v_hr, width = 5).place(x=250,y=295)
+L1_11 = Label(T1, text = ':',font=NORMAL).place(x=280,y=290)
+E1_9 = Entry(T1, textvariable = v_min, width = 5).place(x=300,y=295)
+L1_12 = Label(T1, text = ':',font=NORMAL).place(x=330,y=290)
+E1_10= Entry(T1, textvariable = v_sec, width = 5).place(x=350,y=295)
+blank3 = Label(T1).grid(row=10,column=0)
+
+B1_2 = Button(T1, text = 'Calculate', font = NORMAL, command = CalSat).place(x=500, y = 270)
+
+L1_13_3 = Label(T1, text = 'Timezone :',font=NORMAL).grid(row=12,column = 0, sticky = 'E')
+L1_13_4 = Label(T1, textvariable = v_timezone ,font=NORMAL).grid(row=12,column = 1, sticky = 'E')
+L1_13_3 = Label(T1, text = 'UTC :',font=NORMAL).grid(row=13,column = 0, sticky = 'E')
+L1_13_7 = Label(T1, textvariable = v_UTC_hr ,font=NORMAL).grid(row=13,column = 1, sticky = 'E')
+L1_13_8 = Label(T1, textvariable = v_UTC_min ,font=NORMAL).grid(row=13,column = 2, sticky = 'E')
+L1_13_9 = Label(T1, textvariable = v_UTC_sec ,font=NORMAL).grid(row=13,column = 3, sticky = 'E')
+L1_13_1 = Label(T1, text = 'RA :',font=NORMAL).grid(row=14,column = 0, sticky = 'E')
+L1_13_2 = Label(T1, textvariable = v_RA ,font=NORMAL).grid(row=14,column = 1, sticky = 'E')
+L1_14_2 = Label(T1, textvariable = v_dec,font=NORMAL).grid(row=15,column = 1, sticky = 'E')
+L1_14_1 = Label(T1, text = 'Declination :',font=NORMAL).grid(row=15,column = 0, sticky = 'E')
+L1_15_1 = Label(T1, text = ' :',font=NORMAL).grid(row=14,column = 0, sticky = 'E')
+L1_15_2 = Label(T1, textvariable = v_RA ,font=NORMAL).grid(row=14,column = 1, sticky = 'E')
+
+
+
 ########## T2 (Satellite Data) ##########
 header = ['CATALOG NUMBER', 'INTERNATIONAL DESIGNATOR', 'SATELLITE NAME']
 hdsize = [200,200,200]
