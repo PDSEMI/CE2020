@@ -1,7 +1,7 @@
 # CE2020
 A high school project on Astronomy and Astrophysics
 
-Project Name : "Low earth orbit satellite tracking program with 3D visualization"
+Project Name : "Low Earth Orbit (LEO) satellite tracking program with 3D visualization"
 
 Author : "Natthaphat Phusaeng"
 
