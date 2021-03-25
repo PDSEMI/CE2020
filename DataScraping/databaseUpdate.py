@@ -3,7 +3,7 @@ import openpyxl
 
 ######### EXCEL #########
 #workbook = xlsxwriter.Workbook("SatelliteData.xls")
-workbook = openpyxl.load_workbook("SatelliteData.xlsx")
+workbook = openpyxl.load_workbook("E:\FORUM\Project\CE2020\SatelliteData.xlsx")
 worksheet = workbook.active
 
 Header = ['ID', 'NAME', 'CATALOG', 'ELSET CLASSIFICATION', 'INTERNATIONAL DESIGNATOR', 'EPOCH', 'INCLINATION', 'RA OF ASC_NODE','ECCENTRICITY', 'ARG OF PERIGEE', 'MEAN ANOMALY', 'MOTION']
@@ -43,7 +43,7 @@ for line in data:
     column = 1
     i = i+1
     if i%3 == 1:
-        name = line[1:24].strip()
+        name = line[0:24].strip()
         sat.Name = name
     elif i%3 == 2:
         sat.CatNum = line[2:7].strip()
@@ -64,6 +64,6 @@ for line in data:
             column = column + 1 
         row = row +1
 
-workbook.save("SatelliteData.xlsx")
+workbook.save("E:\FORUM\Project\CE2020\SatelliteData.xlsx")
 print("END SECTION")
 

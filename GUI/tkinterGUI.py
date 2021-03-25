@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 import json
 import search
 import calculation as cal
+import openpyxl
 ########## MAIN GUI ##########
 H = "800"
 W = "800"
@@ -86,6 +87,8 @@ def SetEpoch():
     sec = int(v_UTC_sec.get())
     time = cal.fracTime(hr, minute, sec)
     Epoch = cal.toEpoch(yyyy, mm, dd, time)
+    global Date
+    Date = str(dd) + '/' + str(mm) + '/' +str(yyyy)
     return Epoch
 
 def calTimeZone():
@@ -96,11 +99,17 @@ def calTimeZone():
 
 def setUTC():
     hr = int(v_hr.get())
-    v_UTC_min.set(v_min.get())
-    v_UTC_sec.set(v_sec.get())
     zone = int(v_timezone.get())
     UTC_hr = hr -zone
+    UTC_min = v_min.get()
+    UTC_sec = v_sec.get()
+
     v_UTC_hr.set(str(UTC_hr))
+    v_UTC_min.set(UTC_min)
+    v_UTC_sec.set(UTC_sec)
+
+    global UTC_TIME
+    UTC_TIME = str(UTC_hr) + ':' + str(UTC_min) + ':' + str(UTC_sec)
     
 
 def CalSat():
@@ -130,6 +139,9 @@ def CalSat():
     print('RAAN : ', RAAN)
     print('perigee :', Perigee)
     print('e :', e)
+    print('last epoch :', last_Epoch)
+    print('next epoch :', next_Epoch)
+    print('time elaspe :', float(next_Epoch) - last_Epoch)
     print('=========================')
     print('M : ', M)
     print('E : ', E)
@@ -137,7 +149,15 @@ def CalSat():
     print('RA : ', RA)
     print('Dec : ', Dec)
     
+def CommitData():
+    Epoch = Kepler_element[0]
+    ID = v_catalog.get()
+    RA = v_RA.get()
+    Dec = v_dec.get()
+    search.commitData(Epoch,ID,Date,UTC_TIME,RA,Dec)
+    
 
+    
     
     
 
@@ -208,7 +228,8 @@ L1_14_1 = Label(T1, text = 'Declination :',font=NORMAL).grid(row=15,column = 0, 
 L1_15_1 = Label(T1, text = ' :',font=NORMAL).grid(row=14,column = 0, sticky = 'E')
 L1_15_2 = Label(T1, textvariable = v_RA ,font=NORMAL).grid(row=14,column = 1, sticky = 'E')
 
-
+B1_3 = Button(T1, text ='Commit Data', font = NORMAL, command = CommitData).place(x=500, y = 400)
+B1_4 = Button(T1, text = 'Visualize', font = NORMAL).place(x=500, y=600)
 
 ########## T2 (Satellite Data) ##########
 header = ['CATALOG NUMBER', 'INTERNATIONAL DESIGNATOR', 'SATELLITE NAME']

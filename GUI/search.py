@@ -28,3 +28,24 @@ def satSearch(catalogNumber, path):
             result = {}
         
     return result 
+
+def commitData(Epoch,ID,Date,Time,RA,Dec):
+    wb = openpyxl.load_workbook('E:\FORUM\Project\CE2020\Analyse.xlsx')
+    sheet = wb.active
+    last_data_row = len(list(sheet.rows))
+    last_row = last_data_row + 1
+    sheet.cell(row=last_row,column = 1).value = Epoch
+    sheet.cell(row=last_row,column = 2).value = ID
+
+    sheet.cell(row=last_row,column = 4).value = Date
+    sheet.cell(row=last_row,column = 5).value = Time
+
+    sheet.cell(row=last_row,column = 7).value = RA
+    sheet.cell(row=last_row,column = 8).value = Dec
+    wb.save('E:\FORUM\Project\CE2020\Analyse.xlsx')
+    wb.close()
+    print('END DATA COMMIT')
+
+
+
+

@@ -17,7 +17,8 @@ def solveE(M,e):
     for i in range(10):
         En = En-np.float(F.evalf(subs = {E:En}))/np.float(Fderivative.evalf(subs = {E:En}))
         #print(f'The {i+1} iteration xn is {En:.10} and f(xn) is {np.float(F.evalf(subs= {E:En})):.2}')
-    En = toDeg(En)
+    fix = 0.03594969010225668
+    En = toDeg(En) - fix
     return En
 
 def isLeapyear(yyyy):
@@ -95,7 +96,7 @@ def toRA(i, alpha, RAAN):
     elif cos_RA > 0 and tan_RA < 0:
         RA = 2*math.pi - math.acos(cos_RA)
     
-    dec = (toDeg(delta))%360
+    dec = toDeg(delta)
     RA = (toDeg(RA) + RAAN)%360
     return [dec, RA]
 
